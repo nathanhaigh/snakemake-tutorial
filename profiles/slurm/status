@@ -1,0 +1,26 @@
+#!/bin/bash
+
+JOB_ID="$1"
+
+STATE=$(sacct --format state --parsable2 --jobs "${JOB_ID}" | tail -n1)
+
+case "${STATE}" in
+	*RUNNING*|*PENDING*|*SUSPENDED*|*COMPLETING*|*CONFIGURING* )
+		echo running
+                exit 0
+		;;
+	*COMPLETED* )
+		echo success
+                exit 0
+		;;
+	*BOOT_FAIL*|*CANCELLED*|*FAILED*|*NODE_FAIL*|*PREEMPTED*|*SPECIAL_EXIT*|*STOPPED*|*TIMEOUT* )
+		echo failed
+		exit 0
+		;;
+	* )
+		echo running
+		exit 0
+		;;
+esac
+
+exit 1

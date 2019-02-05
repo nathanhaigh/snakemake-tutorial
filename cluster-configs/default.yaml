@@ -1,0 +1,9 @@
+__default__ :
+        job-name      : "{rule}"
+        output        : "logs/{rule}/{wildcards}.out"
+        ntasks        : 1
+        cpus-per-task : 1
+        mem           : "200M"
+        time          : "00-00:05:00"
+        account       : "my_account"
+        partition     : "my_partition"
