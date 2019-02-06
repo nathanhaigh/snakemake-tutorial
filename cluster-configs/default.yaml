@@ -8,13 +8,13 @@ __default__ :
         account       : "my_account"
         partition     : "my_partition"
 
-# Job specific resource requirement override the above defaults
+# Override the above defaults with job specific values
 #bwa_mem :
 #        cpus-per-task : 16
 #        mem           : "10000M"
 #        time          : "00-01:00:00"
 
-# Job specific resource requirements can be passed from the rule via the "resources" keyword
+# Job specific resource requirements can be passed from the rule, in the Snakefile, via the "resources" keyword
 #bwa_mem :
 #        cpus-per-task : 4
 #        mem           : "{resources.mem_mb}M"
