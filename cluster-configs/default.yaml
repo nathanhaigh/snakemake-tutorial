@@ -7,3 +7,15 @@ __default__ :
         time          : "00-00:05:00"
         account       : "my_account"
         partition     : "my_partition"
+
+# Job specific resource requirement override the above defaults
+#bwa_mem :
+#        cpus-per-task : 16
+#        mem           : "10000M"
+#        time          : "00-01:00:00"
+
+# Job specific resource requirements can be passed from the rule via the "resources" keyword
+#bwa_mem :
+#        cpus-per-task : 4
+#        mem           : "{resources.mem_mb}M"
+#        time          : "00-{resources.time_hrs}:00:00"
