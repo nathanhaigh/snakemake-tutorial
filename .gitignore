@@ -1,0 +1,12 @@
+.conda
+.snakemake/
+benchmarks
+logs
+mapped
+misc
+raw_reads
+qc_reads
+references
+reports
+*.svg
+*.swp
