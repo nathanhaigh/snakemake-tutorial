@@ -10,3 +10,4 @@ dependencies:
  - bwa=0.7.17
  - samtools=1.9
  - htslib=1.9
+ - unzip=6.0

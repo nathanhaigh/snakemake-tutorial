@@ -1,21 +1,22 @@
 ACCESSIONS = [
- "ACBarrie",
-# "Alsen",
-# "Baxter",
-# "Chara",
-# "Drysdale",
-# "Excalibur",
-# "Gladius",
-# "H45",
-# "Kukri",
-# "Pastor",
-# "RAC875",
-# "Volcanii",
-# "Westonia",
-# "Wyalkatchem",
-# "Xiaoyan",
-# "Yitpi",
+  "ACBarrie",
+#  "Alsen",
+#  "Baxter",
+#  "Chara",
+#  "Drysdale",
+#  "Excalibur",
+#  "Gladius",
+#  "H45",
+#  "Kukri",
+#  "Pastor",
+#  "RAC875",
+#  "Volcanii",
+#  "Westonia",
+#  "Wyalkatchem",
+#  "Xiaoyan",
+#  "Yitpi",
 ]
+
 MAX_THREADS = 32
 ADAPTERS = "TruSeq3-PE.fa"
 CHR = "chr4A"
@@ -29,11 +30,8 @@ N_BENCHMARKS = 3
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 HTTP = HTTPRemoteProvider()
 
-
-#singularity:
-#	"docker://continuumio/miniconda3:4.4.10"
-#singularity:
-#	"docker://continuumio/miniconda3:4.5.12"
+singularity:
+	"docker://continuumio/miniconda3:4.5.12"
 
 ############################
 # Include other Snakefiles #
@@ -49,13 +47,15 @@ localrules:
 
 rule all:
 	input:
-		REFERENCE,
 		"reports/raw_reads_multiqc.html",
-		expand("qc_reads/{accession}_R{read}.fastq.gz", accession=ACCESSIONS, read=[1,2]),
 		"reports/qc_reads_multiqc.html",
 		expand("mapped/{accession}.bam", accession=ACCESSIONS),
 
 
+rule setup_data:
+	input:
+		REFERENCE,
+		expand("raw_reads/{accession}_R{read}.fastq.gz", accession=ACCESSIONS, read=[1,2]),
 
 
 ################

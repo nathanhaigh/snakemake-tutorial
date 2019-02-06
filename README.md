@@ -37,29 +37,16 @@ module load \
 source activate snakemake
 ```
 
-Clone the webinar repository
+# Example Workflow
 
 ```bash
-# Clone the repo
+# Clone this repo
 git clone https://github.com/UofABioinformaticsHub/2019_EMBL-ABR_Snakemake_webinar
 
 cd 2019_EMBL-ABR_Snakemake_webinar/snakemake-tutorial
 ```
 
-Now you are ready to run Snakemake.
-
-Without any arguments, Snakemake does not know how to submit jobs to Slurm or how to monitor them etc. It will just execute the jobs locally (i.e. on the head node itself). Snakemake requires a "profile" so that it knows how to interact with a compute backend such as Slurm. I have configured such a profile for Slurm and you can instruct Snakemake to use it with the `--profile` argument:
-
-```bash
-snakemake \
-  --profile slurm \
-  --cluster-config cluster-configs/default.yaml \
-  --cluster-config cluster-configs/phoenix.yaml \
-  --use-conda \
-  --dryrun
-```
-
-Lets visalise the DAG of jobs:
+Now you are ready to run Snakemake. Lets visalise the DAG of job dependencies:
 
 ```bash
 snakemake \
@@ -68,7 +55,22 @@ snakemake \
   > dag.svg
 ```
 
-Now lets run the workflow for real:
+See what rules and commands would be executed for a couple of differet targets:
+
+```bash
+# The "setup_data" target can be used to create a small reference and read data sets for testing purposes
+snakemake \
+  setup_data \
+  --dryrun --printshellcmds
+
+# Run the whole pipeline (target "all"), which would also generate the test data set
+snakemake \
+  --dryrun --printshellcmds
+```
+
+Provided in this repo is a slurm profile, cluster config files and a conda environment file. This allows Snakemake to interact with Slurm and have the relevant software available to each rule.
+
+Running the pipeline, for real, can be accomplished using:
 
 ```bash
 snakemake \
@@ -76,6 +78,50 @@ snakemake \
   --cluster-config cluster-configs/default.yaml \
   --cluster-config cluster-configs/phoenix.yaml \
   --use-conda
+```
+
+Add a new accession and take a look at the DAG of job dependencies
+
+```bash
+# Uncomment the "Alsen" line
+sed -i 's/^#  "(Alsen)",/  "\1",/' Snakefile
+
+# Generate DAG of job dependencies
+snakemake \
+  --dag \
+  | dot -Tsvg \
+  > dag2.svg
+```
+
+Add in the remaining accessions:
+
+```bash
+# Uncomment all the accessions
+sed -i -r 's/^#  "(.+)",/  "\1",/' Snakefile
+
+# Generate DAG of job dependencies
+snakemake \
+  --dag \
+  | dot -Tsvg \
+  > dag3.svg
+```
+
+Wow, that's a big/messy DAG. Lets look at the simpler DAG of rules:
+
+```bash
+snakemake \
+  --rulegraph \
+  | dot -Tsvg \
+  > rulegraph.svg
+```
+
+Lets just have a look at a count of jobs that would be executed:
+
+```bash
+# Get a count of all jobs that would be run
+snakemake \
+  --dryrun \
+  --quiet
 ```
 
 # Cleanup the Enviroment
