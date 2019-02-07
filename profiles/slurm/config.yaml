@@ -5,4 +5,4 @@ restart-times:                2
 max-jobs-per-second:          5
 max-status-checks-per-second: 5
 local-cores:                  8
-jobs:                         5
+jobs:                         100
