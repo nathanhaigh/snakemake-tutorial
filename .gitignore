@@ -1,5 +1,7 @@
 .conda
 .snakemake/
+.cache/
+.java/
 benchmarks
 logs
 mapped
