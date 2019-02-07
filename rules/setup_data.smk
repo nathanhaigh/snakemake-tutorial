@@ -56,7 +56,7 @@ rule extract_reads:
 	conda:
 		"../envs/tutorial.yml"
 	params:
-		base_url = "http://crobiad.agwine.adelaide.edu.au/dawn/jbrowse-prod/data/local/by_chr/mapped_reads_merged/161010_Chinese_Spring_v1.0_pseudomolecules_parts.fasta.gz/minimap2_defaults/whole_genome/PE/BPA/",
+		base_url = "http://crobiad.agwine.adelaide.edu.au/dawn/jbrowse-prod/data/local/by_chr/mapped_reads_merged/161010_Chinese_Spring_v1.0_pseudomolecules_parts.fasta.gz/minimap2_defaults/whole_genome/PE/BPA",
 		chr      = "chr4A_part2",
 		start    = "235500000",
 		end      = "235558000",
