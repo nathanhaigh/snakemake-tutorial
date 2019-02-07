@@ -55,6 +55,8 @@ snakemake \
   > dag.svg
 ```
 
+![alt text](img/dag.png  "DAG of Jobs for 1 accession")
+
 See what rules and commands would be executed for a couple of differet targets:
 
 ```bash
@@ -97,6 +99,8 @@ snakemake \
   > dag2.svg
 ```
 
+![alt text](img/dag2.png  "DAG of Jobs for an additional accession")
+
 Add in the remaining accessions:
 
 ```bash
@@ -110,6 +114,8 @@ snakemake \
   > dag3.svg
 ```
 
+![alt text](img/dag3.png  "DAG of Jobs for 16 accessions")
+
 Wow, that's a big/messy DAG of jobs. Lets look at the simpler DAG of rules:
 
 ```bash
@@ -118,6 +124,8 @@ snakemake \
   | dot -Tsvg \
   > rulegraph.svg
 ```
+
+![alt text](img/rulegraph.png  "DAG of Rule dependencies")
 
 Lets just have a look at a count of jobs that would be executed:
 
