@@ -24,7 +24,7 @@ CHR_START = "688055092"
 CHR_END = "688113092"
 REFERENCE = "references/" + CHR + ":" + CHR_START + "-" + CHR_END + ".fasta.gz"
 
-N_BENCHMARKS = 3
+N_BENCHMARKS = 1
 
 
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
