@@ -20,8 +20,8 @@ ACCESSIONS = [
 MAX_THREADS = 32
 ADAPTERS = "TruSeq3-PE.fa"
 CHR = "chr4A"
-CHR_START = "688055092"
-CHR_END = "688113092"
+CHR_START = "688000000"
+CHR_END = "688100000"
 REFERENCE = "references/" + CHR + ":" + CHR_START + "-" + CHR_END + ".fasta.gz"
 
 N_BENCHMARKS = 1
@@ -31,7 +31,8 @@ from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 HTTP = HTTPRemoteProvider()
 
 singularity:
-	"docker://continuumio/miniconda3:4.5.12"
+#	"docker://continuumio/miniconda3:4.6.14"
+	"docker://rsuchecki/miniconda3:4.6.14_050661b0ef92865fde5aea442f3440d1a7532659"
 
 ############################
 # Include other Snakefiles #
@@ -43,19 +44,26 @@ include:
 # Convienient rules to define targets #
 #######################################
 localrules:
-	all
+	all,
+	setup_data,
+	qc_reads
 
 rule all:
 	input:
-		"reports/raw_reads_multiqc.html",
-		"reports/qc_reads_multiqc.html",
-		expand("mapped/{accession}.bam", accession=ACCESSIONS),
+		expand("reports/{chr}:{start}-{end}/raw_reads_multiqc.html", chr=CHR, start=CHR_START, end=CHR_END),
+		expand("qc_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", chr=CHR, start=CHR_START, end=CHR_END, accession=ACCESSIONS, read=[1,2]),
+		expand("reports/{chr}:{start}-{end}/qc_reads_multiqc.html", chr=CHR, start=CHR_START, end=CHR_END),
+		expand("mapped/{chr}:{start}-{end}/{accession}.bam", chr=CHR, start=CHR_START, end=CHR_END, accession=ACCESSIONS),
 
 
 rule setup_data:
 	input:
 		REFERENCE,
-		expand("raw_reads/{accession}_R{read}.fastq.gz", accession=ACCESSIONS, read=[1,2]),
+		expand("raw_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", chr=CHR, start=CHR_START, end=CHR_END, accession=ACCESSIONS, read=[1,2]),
+
+rule qc_reads:
+	input:
+		expand("qc_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", chr=CHR, start=CHR_START, end=CHR_END, accession=ACCESSIONS, read=[1,2]),
 
 
 ################
@@ -83,13 +91,13 @@ rule fastqc_raw:
 
 rule multiqc_raw:
 	input:
-		expand("reports/raw_reads/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
+		expand("reports/raw_reads/{{chr}}:{{start}}-{{end}}/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
 	output:
-		"reports/raw_reads_multiqc.html",
+		"reports/{chr}:{start}-{end}/raw_reads_multiqc.html",
 	conda:
 		"envs/tutorial.yml"
 	benchmark:
-		repeat("benchmarks/multiqc_raw/benchmark.txt", N_BENCHMARKS),
+		repeat("benchmarks/multiqc_raw/{chr}:{start}-{end}/benchmark.txt", N_BENCHMARKS),
 	wrapper:
 		"0.31.1/bio/multiqc"
 #	shell:
@@ -111,15 +119,15 @@ rule download_trimmomatic_pe_adapters:
 
 rule trimmomatic_pe:
 	input:
-		r1          = "raw_reads/{accession}_R1.fastq.gz",
-		r2          = "raw_reads/{accession}_R2.fastq.gz",
+		r1          = "raw_reads/{prefix}_R1.fastq.gz",
+		r2          = "raw_reads/{prefix}_R2.fastq.gz",
 		adapaters   = lambda wildcards: "misc/trimmomatic_adapaters/" + ADAPTERS
 	output:
-		r1          = "qc_reads/{accession}_R1.fastq.gz",
-		r2          = "qc_reads/{accession}_R2.fastq.gz",
+		r1          = "qc_reads/{prefix}_R1.fastq.gz",
+		r2          = "qc_reads/{prefix}_R2.fastq.gz",
 		# reads where trimming entirely removed the mate
-		r1_unpaired = "qc_reads/{accession}_R1.unpaired.fastq.gz",
-		r2_unpaired = "qc_reads/{accession}_R2.unpaired.fastq.gz",
+		r1_unpaired = "qc_reads/{prefix}_R1.unpaired.fastq.gz",
+		r2_unpaired = "qc_reads/{prefix}_R2.unpaired.fastq.gz",
 	conda:
 		"envs/tutorial.yml"
 	params:
@@ -131,7 +139,7 @@ rule trimmomatic_pe:
 			"MINLEN:36",
 		],
 	benchmark:
-		repeat("benchmarks/trimmomatic_pe/{accession}.txt", N_BENCHMARKS),
+		repeat("benchmarks/trimmomatic_pe/{prefix}.txt", N_BENCHMARKS),
 	wrapper:
 		"0.31.1/bio/trimmomatic/pe"
 
@@ -154,13 +162,13 @@ rule fastqc_trimmed:
 
 rule multiqc_trimmed:
 	input:
-		expand("reports/qc_reads/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
+		expand("reports/qc_reads/{{chr}}:{{start}}-{{end}}/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
 	output:
-		"reports/qc_reads_multiqc.html",
+		"reports/{chr}:{start}-{end}/qc_reads_multiqc.html",
 	conda:
 		"envs/tutorial.yml"
 	benchmark:
-		repeat("benchmarks/multiqc_trimmed/benchmark.txt", N_BENCHMARKS),
+		repeat("benchmarks/multiqc_trimmed/{chr}:{start}-{end}/benchmark.txt", N_BENCHMARKS),
 	wrapper:
 		"0.31.1/bio/multiqc"
 #	shell:
