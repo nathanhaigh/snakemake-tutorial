@@ -20,7 +20,7 @@ ACCESSIONS = [
 MAX_THREADS = 32
 ADAPTERS = "TruSeq3-PE.fa"
 CHR = "chr4A"
-CHR_START = "688000000"
+CHR_START = "670000000"
 CHR_END = "688100000"
 REFERENCE = "references/" + CHR + ":" + CHR_START + "-" + CHR_END + ".fasta.gz"
 
