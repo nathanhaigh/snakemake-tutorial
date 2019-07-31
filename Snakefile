@@ -1,20 +1,20 @@
 ACCESSIONS = [
   "ACBarrie",
-#  "Alsen",
-#  "Baxter",
-#  "Chara",
-#  "Drysdale",
-#  "Excalibur",
-#  "Gladius",
-#  "H45",
-#  "Kukri",
-#  "Pastor",
-#  "RAC875",
-#  "Volcanii",
-#  "Westonia",
-#  "Wyalkatchem",
-#  "Xiaoyan",
-#  "Yitpi",
+  "Alsen",
+  "Baxter",
+  "Chara",
+  "Drysdale",
+  "Excalibur",
+  "Gladius",
+  "H45",
+  "Kukri",
+  "Pastor",
+  "RAC875",
+  "Volcanii",
+  "Westonia",
+  "Wyalkatchem",
+  "Xiaoyan",
+  "Yitpi",
 ]
 
 MAX_THREADS = 32
@@ -32,7 +32,8 @@ HTTP = HTTPRemoteProvider()
 
 singularity:
 #	"docker://continuumio/miniconda3:4.6.14"
-	"docker://rsuchecki/miniconda3:4.6.14_050661b0ef92865fde5aea442f3440d1a7532659"
+#	"docker://rsuchecki/miniconda3:4.6.14_050661b0ef92865fde5aea442f3440d1a7532659"
+	"docker://rsuchecki/nextflow-embl-abr-webinar"
 
 ############################
 # Include other Snakefiles #
