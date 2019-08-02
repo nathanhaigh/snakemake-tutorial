@@ -2,7 +2,7 @@
 
 JOB_ID="$1"
 
-STATE=$(sacct --format state --parsable2 --jobs "${JOB_ID}" | tail -n1)
+STATE=$(sacct --format state --parsable2 --jobs "${JOB_ID}" 2> /dev/null | tail -n1)
 
 case "${STATE}" in
 	*RUNNING*|*PENDING*|*SUSPENDED*|*COMPLETING*|*CONFIGURING* )
