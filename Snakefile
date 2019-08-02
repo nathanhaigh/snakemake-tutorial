@@ -32,8 +32,8 @@ HTTP = HTTPRemoteProvider()
 
 singularity:
 #	"docker://continuumio/miniconda3:4.6.14"
-#	"docker://rsuchecki/miniconda3:4.6.14_050661b0ef92865fde5aea442f3440d1a7532659"
-	"docker://rsuchecki/nextflow-embl-abr-webinar"
+	"docker://rsuchecki/miniconda3:4.6.14_050661b0ef92865fde5aea442f3440d1a7532659"
+#	"docker://rsuchecki/nextflow-embl-abr-webinar"
 
 ############################
 # Include other Snakefiles #
