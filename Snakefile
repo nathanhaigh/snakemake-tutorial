@@ -24,9 +24,6 @@ CHR_START = "688055092"
 CHR_END = "688113092"
 REFERENCE = "references/" + CHR + ":" + CHR_START + "-" + CHR_END + ".fasta.gz"
 
-N_BENCHMARKS = 1
-
-
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 HTTP = HTTPRemoteProvider()
 
@@ -81,8 +78,6 @@ rule fastqc_raw:
 		"envs/tutorial.yml"
 	threads:
 		MAX_THREADS
-	benchmark:
-		repeat("benchmarks/fastqc_raw/{prefix}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		fastqc --threads {threads} {input}
@@ -103,8 +98,6 @@ rule multiqc_raw:
 
 	conda:
 		"envs/tutorial.yml"
-	benchmark:
-		repeat("benchmarks/multiqc_raw/{chr}:{start}-{end}/benchmark.txt", N_BENCHMARKS),
 	shell:
 		"""
 		multiqc --force --filename {output.html} {input}
@@ -143,8 +136,6 @@ rule trimmomatic_pe:
 			"SLIDINGWINDOW:4:15",
 			"MINLEN:36",
 		],
-	benchmark:
-		repeat("benchmarks/trimmomatic_pe/{prefix}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		trimmomatic PE \
@@ -163,8 +154,6 @@ rule fastqc_trimmed:
 		html = "reports/qc_reads/{prefix}_fastqc.html",
 	conda:
 		"envs/tutorial.yml"
-	benchmark:
-		repeat("benchmarks/fastqc_trimmed/{prefix}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		fastqc --threads {threads} {input}
@@ -184,8 +173,6 @@ rule multiqc_trimmed:
 		src   = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_sources.txt",
 	conda:
 		"envs/tutorial.yml"
-	benchmark:
-		repeat("benchmarks/multiqc_trimmed/{chr}:{start}-{end}/benchmark.txt", N_BENCHMARKS),
 	shell:
 		"""
 		multiqc --force --filename {output.html} {input}
@@ -207,8 +194,6 @@ rule bwa_index:
 	params:
 		prefix    = "{ref}",
 		algorithm = "bwtsw"
-	benchmark:
-		repeat("benchmarks/bwa_index/{ref}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		bwa index \
@@ -235,8 +220,6 @@ rule bwa_mem:
 		sort_extra = ""
 	threads:
 		MAX_THREADS
-	benchmark:
-		repeat("benchmarks/bwa_mem/{sample}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		bwa mem \
