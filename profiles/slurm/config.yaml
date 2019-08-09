@@ -1,8 +1,8 @@
 cluster:                      "profiles/slurm/submit -J {cluster.job-name} -t {cluster.time} -p {cluster.partition} -A {cluster.account} -n {cluster.ntasks} -c {cluster.cpus-per-task} -m {cluster.mem} -o {cluster.output} -d '{dependencies}'"
 cluster-status:               "status"
 jobscript:                    "jobscript"
-restart-times:                1
-max-jobs-per-second:          5
-max-status-checks-per-second: 5
-local-cores:                  4
+restart-times:                0
+max-jobs-per-second:          10
+max-status-checks-per-second: 10
+local-cores:                  1
 jobs:                         200
