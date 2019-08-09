@@ -83,28 +83,32 @@ rule fastqc_raw:
 		MAX_THREADS
 	benchmark:
 		repeat("benchmarks/fastqc_raw/{prefix}.txt", N_BENCHMARKS),
-	wrapper:
-		"0.31.1/bio/fastqc"
-#	shell:
-#		"""
-#		fastqc --threads {threads} {input}
-#		"""
+	shell:
+		"""
+		fastqc --threads {threads} {input}
+		mv raw_reads/{wildcards.prefix}_fastqc.zip {output.zip}
+		mv raw_reads/{wildcards.prefix}_fastqc.html {output.html}
+		"""
 
 rule multiqc_raw:
 	input:
 		expand("reports/raw_reads/{{chr}}:{{start}}-{{end}}/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
 	output:
-		"reports/{chr}:{start}-{end}/raw_reads_multiqc.html",
+		html  = "reports/{chr}:{start}-{end}/raw_reads_multiqc.html",
+		log   = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc.log",
+		json  = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc_data.json",
+		txt   = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc_fastqc.txt",
+		stats = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc_general_stats.txt",
+		src   = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc_sources.txt",
+
 	conda:
 		"envs/tutorial.yml"
 	benchmark:
 		repeat("benchmarks/multiqc_raw/{chr}:{start}-{end}/benchmark.txt", N_BENCHMARKS),
-	wrapper:
-		"0.31.1/bio/multiqc"
-#	shell:
-#		"""
-#		multiqc --filename {output} {input}
-#		"""
+	shell:
+		"""
+		multiqc --force --filename {output.html} {input}
+		"""
 
 rule download_trimmomatic_pe_adapters:
 	input:
@@ -141,8 +145,15 @@ rule trimmomatic_pe:
 		],
 	benchmark:
 		repeat("benchmarks/trimmomatic_pe/{prefix}.txt", N_BENCHMARKS),
-	wrapper:
-		"0.31.1/bio/trimmomatic/pe"
+	shell:
+		"""
+		trimmomatic PE \
+		  -threads {threads} \
+		  {input.r1} {input.r2} \
+		  {output.r1} {output.r1_unpaired} \
+		  {output.r2} {output.r2_unpaired} \
+		  {params.trimmer}
+		"""
 
 rule fastqc_trimmed:
 	input:
@@ -154,28 +165,31 @@ rule fastqc_trimmed:
 		"envs/tutorial.yml"
 	benchmark:
 		repeat("benchmarks/fastqc_trimmed/{prefix}.txt", N_BENCHMARKS),
-	wrapper:
-		"0.31.1/bio/fastqc"
-#	shell:
-#		"""
-#		fastqc {input}
-#		"""
+	shell:
+		"""
+		fastqc --threads {threads} {input}
+		mv qc_reads/{wildcards.prefix}_fastqc.zip {output.zip}
+                mv qc_reads/{wildcards.prefix}_fastqc.html {output.html}
+		"""
 
 rule multiqc_trimmed:
 	input:
 		expand("reports/qc_reads/{{chr}}:{{start}}-{{end}}/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
 	output:
-		"reports/{chr}:{start}-{end}/qc_reads_multiqc.html",
+		html  = "reports/{chr}:{start}-{end}/qc_reads_multiqc.html",
+		log   = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc.log",
+		json  = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_data.json",
+		txt   = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_fastqc.txt",
+		stats = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_general_stats.txt",
+		src   = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_sources.txt",
 	conda:
 		"envs/tutorial.yml"
 	benchmark:
 		repeat("benchmarks/multiqc_trimmed/{chr}:{start}-{end}/benchmark.txt", N_BENCHMARKS),
-	wrapper:
-		"0.31.1/bio/multiqc"
-#	shell:
-#		"""
-#		multiqc --filename {output} {input}
-#		"""
+	shell:
+		"""
+		multiqc --force --filename {output.html} {input}
+		"""
 
 rule bwa_index:
 	input:
@@ -195,16 +209,13 @@ rule bwa_index:
 		algorithm = "bwtsw"
 	benchmark:
 		repeat("benchmarks/bwa_index/{ref}.txt", N_BENCHMARKS),
-	wrapper:
-		"0.31.1/bio/bwa/index"
-#	shell:
-#		"""
-#		bwa index \
-#		  -p {params.prefix} \
-#		  -a {params.algorithm} \
-#		  {input} \
-#		2> {log}
-#		"""
+	shell:
+		"""
+		bwa index \
+		  -p {params.prefix} \
+		  -a {params.algorithm} \
+		  {input}
+		"""
 
 rule bwa_mem:
 	input:
@@ -226,7 +237,13 @@ rule bwa_mem:
 		MAX_THREADS
 	benchmark:
 		repeat("benchmarks/bwa_mem/{sample}.txt", N_BENCHMARKS),
-	wrapper:
-		"0.31.1/bio/bwa/mem"
-
+	shell:
+		"""
+		bwa mem \
+		  -t {threads} \
+		  {params.extra} \
+		  {params.index} \
+		  {input.reads} \
+		| samtools view -b > {output}
+		"""
 
