@@ -12,3 +12,4 @@ references
 reports
 *.svg
 *.swp
+slurm-*.out
