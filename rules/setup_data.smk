@@ -10,8 +10,6 @@ rule get_chromosome:
 		reference_url = "http://crobiad.agwine.adelaide.edu.au/dawn/jbrowse-prod/data/wheat_full/references/161010_Chinese_Spring_v1.0_pseudomolecules.fasta.gz",
 	threads:
 		MAX_THREADS
-	benchmark:
-		repeat("benchmarks/get_chromosome_subregion/{chr}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		samtools faidx {params.reference_url} {wildcards.chr} \
@@ -28,8 +26,6 @@ rule extract_chromosome_subregion:
 		"../envs/tutorial.yml"
 	threads:
 		MAX_THREADS
-	benchmark:
-		repeat("benchmarks/extract_chromosome_subregion/{chr}:{start}-{end}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		samtools faidx {input} {wildcards.chr}:{wildcards.start}-{wildcards.end} \
@@ -49,8 +45,6 @@ rule extract_reads:
 		"../envs/tutorial.yml"
 	params:
 		base_url = "http://crobiad.agwine.adelaide.edu.au/dawn/jbrowse-prod/data/wheat_full/minimap2_defaults/whole_genome/PE/BPA",
-	benchmark:
-		repeat("benchmarks/extract_reads/{chr}:{start}-{end}/{accession}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		# Need to fudge things more than I'd like, since the cari file that samtools downloads for each chromosome will clobber each other
@@ -67,8 +61,6 @@ rule index_fasta:
 		expand("references/{{chr}}.fasta.gz.{ext}", ext=["fai", "gzi"]),
 	conda:
 		"../envs/tutorial.yml"
-	benchmark:
-		repeat("benchmarks/index_fasta/{chr}.txt", N_BENCHMARKS),
 	shell:
 		"""
 		samtools faidx {input}
