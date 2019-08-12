@@ -4,6 +4,8 @@ ruleorder:
 rule get_chromosome:
 	output:
 		"references/{chr}.fasta.gz",
+	wildcard_constraints:
+		chr = "[^\:]+"
 	conda:
 		"../envs/tutorial.yml"
 	params:

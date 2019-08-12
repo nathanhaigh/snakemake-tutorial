@@ -68,6 +68,32 @@ rule qc_reads:
 # Rules Proper #
 ################
 
+ruleorder:
+	get_reference > extract_chromosome_subregion
+rule get_reference:
+	input:
+#		HTTP.remote('github.com/UofABioinformaticsHub/embl-abr-snakemake-nextflow-workshop/releases/download/{chr}_{start}-{end}/reference.fasta.gz', allow_redirects=True, keep_local=True),
+		HTTP.remote("45.121.133.71/test_data/references/{chr}:{start}-{end}.fasta.gz", keep_local=True, insecure=True),
+	output:
+		"references/{chr}:{start}-{end}.fasta.gz",
+	shell:
+		"""
+		mv {input} {output}
+		"""
+
+ruleorder:
+		get_reads > extract_reads
+rule get_reads:
+	input:
+#		HTTP.remote("github.com/UofABioinformaticsHub/embl-abr-snakemake-nextflow-workshop/releases/download/{chr}_{start}-{end}/{accession}_R{read}.fastq.gz", allow_redirects=True, keep_local=True),
+		HTTP.remote("45.121.133.71/test_data/raw_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", keep_local=True, insecure=True),
+	output:
+		"raw_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz",
+	shell:
+		"""
+		mv {input} {output}
+		"""
+
 rule fastqc_raw:
 	input:
 		"raw_reads/{prefix}.fastq.gz",
