@@ -1,5 +1,38 @@
+CHR = "chr4A"
+CHR_START = "688055092"
+CHR_END = "688113092"
+
+from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+HTTP = HTTPRemoteProvider()
+
 ruleorder:
 	extract_chromosome_subregion > get_chromosome
+
+ruleorder:
+        get_reference > extract_chromosome_subregion
+rule get_reference:
+	input:
+#		HTTP.remote('github.com/UofABioinformaticsHub/embl-abr-snakemake-nextflow-workshop/releases/download/{chr}_{start}-{end}/reference.fasta.gz', allow_redirects=True, keep_local=True),
+		HTTP.remote("45.121.133.71/test_data/references/{chr}:{start}-{end}.fasta.gz", keep_local=True, insecure=True),
+	output:
+		"references/{chr}:{start}-{end}.fasta.gz",
+	shell:
+		"""
+		mv {input} {output}
+		"""
+
+ruleorder:
+	get_reads > extract_reads
+rule get_reads:
+	input:
+#		HTTP.remote("github.com/UofABioinformaticsHub/embl-abr-snakemake-nextflow-workshop/releases/download/{chr}_{start}-{end}/{accession}_R{read}.fastq.gz", allow_redirects=True, keep_local=True),
+		HTTP.remote("45.121.133.71/test_data/raw_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", keep_local=True, insecure=True),
+	output:
+		"raw_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz",
+	shell:
+		"""
+		mv {input} {output}
+		"""
 
 rule get_chromosome:
 	output:

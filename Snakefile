@@ -19,10 +19,6 @@ ACCESSIONS = [
 
 MAX_THREADS = 32
 ADAPTERS = "TruSeq3-PE.fa"
-CHR = "chr4A"
-CHR_START = "688055092"
-CHR_END = "688113092"
-REFERENCE = "references/" + CHR + ":" + CHR_START + "-" + CHR_END + ".fasta.gz"
 
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 HTTP = HTTPRemoteProvider()
@@ -31,12 +27,6 @@ singularity:
 #	"docker://continuumio/miniconda3:4.6.14"
 	"docker://rsuchecki/miniconda3:4.6.14_050661b0ef92865fde5aea442f3440d1a7532659"
 #	"docker://rsuchecki/nextflow-embl-abr-webinar"
-
-############################
-# Include other Snakefiles #
-############################
-include:
-	"rules/setup_data.smk"
 
 #######################################
 # Convienient rules to define targets #
@@ -48,51 +38,25 @@ localrules:
 
 rule all:
 	input:
-		expand("reports/{chr}:{start}-{end}/raw_reads_multiqc.html", chr=CHR, start=CHR_START, end=CHR_END),
-		expand("qc_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", chr=CHR, start=CHR_START, end=CHR_END, accession=ACCESSIONS, read=[1,2]),
-		expand("reports/{chr}:{start}-{end}/qc_reads_multiqc.html", chr=CHR, start=CHR_START, end=CHR_END),
-		expand("mapped/{chr}:{start}-{end}/{accession}.bam", chr=CHR, start=CHR_START, end=CHR_END, accession=ACCESSIONS),
+		"reports/raw_reads_multiqc.html",
+		expand("qc_reads/{accession}_R{read}.fastq.gz", accession=ACCESSIONS, read=[1,2]),
+		"reports/qc_reads_multiqc.html",
+		expand("mapped/{accession}.bam", accession=ACCESSIONS),
 
 
 rule setup_data:
 	input:
-		REFERENCE,
-		expand("raw_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", chr=CHR, start=CHR_START, end=CHR_END, accession=ACCESSIONS, read=[1,2]),
+		"references/reference.fasta.gz",
+		expand("raw_reads/{accession}_R{read}.fastq.gz", accession=ACCESSIONS, read=[1,2]),
 
 rule qc_reads:
 	input:
-		expand("qc_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", chr=CHR, start=CHR_START, end=CHR_END, accession=ACCESSIONS, read=[1,2]),
+		expand("qc_reads/{accession}_R{read}.fastq.gz", accession=ACCESSIONS, read=[1,2]),
 
 
 ################
 # Rules Proper #
 ################
-
-ruleorder:
-	get_reference > extract_chromosome_subregion
-rule get_reference:
-	input:
-#		HTTP.remote('github.com/UofABioinformaticsHub/embl-abr-snakemake-nextflow-workshop/releases/download/{chr}_{start}-{end}/reference.fasta.gz', allow_redirects=True, keep_local=True),
-		HTTP.remote("45.121.133.71/test_data/references/{chr}:{start}-{end}.fasta.gz", keep_local=True, insecure=True),
-	output:
-		"references/{chr}:{start}-{end}.fasta.gz",
-	shell:
-		"""
-		mv {input} {output}
-		"""
-
-ruleorder:
-		get_reads > extract_reads
-rule get_reads:
-	input:
-#		HTTP.remote("github.com/UofABioinformaticsHub/embl-abr-snakemake-nextflow-workshop/releases/download/{chr}_{start}-{end}/{accession}_R{read}.fastq.gz", allow_redirects=True, keep_local=True),
-		HTTP.remote("45.121.133.71/test_data/raw_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz", keep_local=True, insecure=True),
-	output:
-		"raw_reads/{chr}:{start}-{end}/{accession}_R{read}.fastq.gz",
-	shell:
-		"""
-		mv {input} {output}
-		"""
 
 rule fastqc_raw:
 	input:
@@ -113,14 +77,14 @@ rule fastqc_raw:
 
 rule multiqc_raw:
 	input:
-		expand("reports/raw_reads/{{chr}}:{{start}}-{{end}}/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
+		expand("reports/raw_reads/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
 	output:
-		html  = "reports/{chr}:{start}-{end}/raw_reads_multiqc.html",
-		log   = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc.log",
-		json  = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc_data.json",
-		txt   = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc_fastqc.txt",
-		stats = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc_general_stats.txt",
-		src   = "reports/{chr}:{start}-{end}/raw_reads_multiqc_data/multiqc_sources.txt",
+		html  = "reports/raw_reads_multiqc.html",
+		log   = "reports/raw_reads_multiqc_data/multiqc.log",
+		json  = "reports/raw_reads_multiqc_data/multiqc_data.json",
+		txt   = "reports/raw_reads_multiqc_data/multiqc_fastqc.txt",
+		stats = "reports/raw_reads_multiqc_data/multiqc_general_stats.txt",
+		src   = "reports/raw_reads_multiqc_data/multiqc_sources.txt",
 
 	conda:
 		"envs/tutorial.yml"
@@ -189,14 +153,14 @@ rule fastqc_trimmed:
 
 rule multiqc_trimmed:
 	input:
-		expand("reports/qc_reads/{{chr}}:{{start}}-{{end}}/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
+		expand("reports/qc_reads/{accession}_R{read}_fastqc.zip", accession=ACCESSIONS, read=[1,2]),
 	output:
-		html  = "reports/{chr}:{start}-{end}/qc_reads_multiqc.html",
-		log   = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc.log",
-		json  = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_data.json",
-		txt   = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_fastqc.txt",
-		stats = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_general_stats.txt",
-		src   = "reports/{chr}:{start}-{end}/qc_reads_multiqc_data/multiqc_sources.txt",
+		html  = "reports/qc_reads_multiqc.html",
+		log   = "reports/qc_reads_multiqc_data/multiqc.log",
+		json  = "reports/qc_reads_multiqc_data/multiqc_data.json",
+		txt   = "reports/qc_reads_multiqc_data/multiqc_fastqc.txt",
+		stats = "reports/qc_reads_multiqc_data/multiqc_general_stats.txt",
+		src   = "reports/qc_reads_multiqc_data/multiqc_sources.txt",
 	conda:
 		"envs/tutorial.yml"
 	shell:
@@ -230,7 +194,7 @@ rule bwa_index:
 
 rule bwa_mem:
 	input:
-		reference = expand(REFERENCE + ".{ext}", ext=["amb","ann","bwt","pac","sa"]),
+		reference = expand("references/reference.fasta.gz.{ext}", ext=["amb","ann","bwt","pac","sa"]),
 		reads     = [ "qc_reads/{sample}_R1.fastq.gz", "qc_reads/{sample}_R2.fastq.gz"],
 #		r1        = "qc_reads/{sample}_R1.fastq.gz",
 #		r2        = "qc_reads/{sample}_R2.fastq.gz",
@@ -239,7 +203,7 @@ rule bwa_mem:
 	conda:
 		"envs/tutorial.yml"
 	params:
-		index      = REFERENCE,
+		index      = "references/reference.fasta.gz",
 		extra      = r"-R '@RG\tID:{sample}\tSM:{sample}'",
 		sort       = "none",
 		sort_order = "queryname",
