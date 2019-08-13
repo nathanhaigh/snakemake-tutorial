@@ -95,9 +95,9 @@ rule multiqc_raw:
 
 rule download_trimmomatic_pe_adapters:
 	input:
-		HTTP.remote("raw.githubusercontent.com/timflutre/trimmomatic/master/adapters/{adapeters}", keep_local=True),
+		HTTP.remote("raw.githubusercontent.com/timflutre/trimmomatic/master/adapters/{adapters}", keep_local=True),
 	output:
-		"misc/trimmomatic_adapaters/{adapters}"
+		"misc/trimmomatic_adapters/{adapters}"
 	conda:
 		"envs/tutorial.yml"
 	shell:
@@ -109,7 +109,7 @@ rule trimmomatic_pe:
 	input:
 		r1          = "raw_reads/{prefix}_R1.fastq.gz",
 		r2          = "raw_reads/{prefix}_R2.fastq.gz",
-		adapaters   = "misc/trimmomatic_adapaters/" + ADAPTERS
+		adapters    = "misc/trimmomatic_adapters/" + ADAPTERS
 	output:
 		r1          = "qc_reads/{prefix}_R1.fastq.gz",
 		r2          = "qc_reads/{prefix}_R2.fastq.gz",
@@ -120,7 +120,7 @@ rule trimmomatic_pe:
 		"envs/tutorial.yml"
 	params:
 		trimmer = [
-			"ILLUMINACLIP:misc/trimmomatic_adapaters/" + ADAPTERS + ":2:30:10:3:true",
+			"ILLUMINACLIP:misc/trimmomatic_adapters/" + ADAPTERS + ":2:30:10:3:true",
 			"LEADING:2",
 			"TRAILING:2",
 			"SLIDINGWINDOW:4:15",
