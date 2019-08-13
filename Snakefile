@@ -131,7 +131,7 @@ rule multiqc_raw:
 
 rule download_trimmomatic_pe_adapters:
 	input:
-		lambda wildcards: HTTP.remote("raw.githubusercontent.com/timflutre/trimmomatic/master/adapters/" + wildcards.adapters, keep_local=True),
+		HTTP.remote("raw.githubusercontent.com/timflutre/trimmomatic/master/adapters/{adapeters}", keep_local=True),
 	output:
 		"misc/trimmomatic_adapaters/{adapters}"
 	conda:
@@ -145,7 +145,7 @@ rule trimmomatic_pe:
 	input:
 		r1          = "raw_reads/{prefix}_R1.fastq.gz",
 		r2          = "raw_reads/{prefix}_R2.fastq.gz",
-		adapaters   = lambda wildcards: "misc/trimmomatic_adapaters/" + ADAPTERS
+		adapaters   = "misc/trimmomatic_adapaters/" + ADAPTERS
 	output:
 		r1          = "qc_reads/{prefix}_R1.fastq.gz",
 		r2          = "qc_reads/{prefix}_R2.fastq.gz",
